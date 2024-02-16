@@ -243,8 +243,10 @@ public class Ecran_Accueil extends JFrame {
         item1[2].addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){ 
                 panel_graphe.removeAll();
+                File fle = new File("src\\main\\java\\document"); //Répertoire prédéfini; 
                 JFileChooser chose = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory()); 
                 chose.setDialogTitle("Choisisez une liste de successeur : ");
+                chose.setCurrentDirectory(fle);
                 //Limiter la sélection des fichiers par type; 
                 chose.setAcceptAllFileFilterUsed(false);
                 FileNameExtensionFilter accept = new FileNameExtensionFilter("Fichier CSV", "csv");
@@ -273,8 +275,10 @@ public class Ecran_Accueil extends JFrame {
         item1[3].addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){ 
                 panel_graphe.removeAll();
+                File fle = new File("src\\main\\java\\document"); //Répertoire prédéfini; 
                 JFileChooser chose = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory()); 
                 chose.setDialogTitle("Choisisez une liste d'adjacence : ");
+                chose.setCurrentDirectory(fle);
                 //Limiter la sélection des fichiers par type; 
                 chose.setAcceptAllFileFilterUsed(false);
                 FileNameExtensionFilter accept = new FileNameExtensionFilter("Fichier CSV", "csv");

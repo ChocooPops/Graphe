@@ -1,7 +1,10 @@
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 
 public class LCGraphe { 
@@ -675,4 +678,69 @@ public class LCGraphe {
         }
         return s; 
     }
+    
+  public List<String> dijkstra(String sommetDepart, String sommetArrivee) {
+    HashMap<String, Double> distances = new HashMap<>();
+    HashMap<String, String> predecesseurs = new HashMap<>();
+    PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+
+    // Initialisation des distances à l'infini, sauf pour le sommet de départ
+    MaillonPrincipal courant = premier;
+    while (courant != null) {
+        if (courant.nom.equals(sommetDepart)) {
+            distances.put(courant.nom, 0.0);
+        } else {
+            distances.put(courant.nom, Double.POSITIVE_INFINITY);
+        }
+        predecesseurs.put(courant.nom, null);
+        queue.add(courant.nom);
+        courant = courant.suiv;
+    }
+
+    // Boucle principale de l'algorithme de Dijkstra
+    while (!queue.isEmpty()) {
+        String sommetCourant = queue.poll();
+        double distanceCourante = distances.get(sommetCourant);
+
+        if (sommetCourant.equals(sommetArrivee)) {
+            // Nous avons atteint le sommet d'arrivée, donc nous pouvons arrêter ici
+            break;
+        }
+
+        // Parcours des voisins du sommet courant
+        courant = trouverSommet(sommetCourant);
+        MaillonGrapheSec voisinCourant = courant.voisin;
+        while (voisinCourant != null) {
+            double distanceVoisin = distanceCourante * voisinCourant.fiabilite;
+            if (distanceVoisin < distances.get(voisinCourant.dest)) {
+                distances.put(voisinCourant.dest, distanceVoisin);
+                predecesseurs.put(voisinCourant.dest, sommetCourant);
+            }
+            voisinCourant = voisinCourant.suiv;
+        }
+    }
+
+    // Construction du chemin le plus court
+    List<String> cheminPlusCourt = new ArrayList<>();
+    String sommet = sommetArrivee;
+    while (sommet != null) {
+        cheminPlusCourt.add(0, sommet);
+        sommet = predecesseurs.get(sommet);
+    }
+
+    return cheminPlusCourt;
+}
+private MaillonPrincipal trouverSommet(String nom) {
+    MaillonPrincipal courant = premier;
+    while (courant != null) {
+        if (courant.nom.equals(nom)) {
+            return courant;
+        }
+        courant = courant.suiv;
+    }
+    return null;
+}
+    
+    
+    
 }

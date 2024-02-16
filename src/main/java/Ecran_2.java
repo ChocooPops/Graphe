@@ -204,7 +204,7 @@ public class Ecran_2 extends JFrame {
                             resultat.setText("Le ou les dispensaires mentionnés sont introuvables.");
                             resultat.setFont(new Font ("Arial", Font.BOLD, 30)); 
                         }else{
-                            resultat.setText(graphe.Savoir_Si_Sommet_2_Distance(sommet1.getText(), sommet2.getText()));
+                            System.out.println(graphe.dijkstra(sommet1.getText(), sommet2.getText()));
                         }
                         
                         centre.add(resultat); 

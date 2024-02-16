@@ -1,4 +1,4 @@
-import java.util.Random; 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            import java.util.Random; 
 
 public class TestGraphe {
     
@@ -49,5 +49,15 @@ public class TestGraphe {
         System.out.println(" "); 
         System.out.println(" "); 
         System.out.println(graphe.getCara());
+        System.out.println(" "); 
+        System.out.println(" "); 
+        
+        
+        LCGraphe g = new LCGraphe(); 
+        
+       
+        System.out.println(g.dijkstra("S1", "S5")); 
+        
     }    
+    
 }
