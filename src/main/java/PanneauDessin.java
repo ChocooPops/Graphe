@@ -15,7 +15,6 @@ import java.awt.event.*;
 public class PanneauDessin extends JPanel {
         private final List<Cercle> lesCercles; 
         private LCGraphe sommet; 
-        Traitement_Fichier fic; 
         private LinkedList<Integer> [] coordonnée; 
         private int taille_cercle = 20; 
         private Color [] c; 
@@ -67,7 +66,7 @@ public class PanneauDessin extends JPanel {
             g2d.setColor(Color.BLACK);
         for (int i = 0; i < lesCercles.size(); i++) {
             String [] str = sommet.getNomVoisin(lesCercles.get(i).getText()).split(";"); 
-            String [] segment = sommet.getFiabilite(lesCercles.get(i).getText()).split(";"); 
+            String [] segment = sommet.getNomArete(lesCercles.get(i).getText()).split(";"); 
             for(int j=0; j<str.length; j++){
                 Cercle circle1 = lesCercles.get(i);
                 Cercle circle2 = ChercherCercle(str[j]); 

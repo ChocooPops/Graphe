@@ -1,11 +1,6 @@
 
 import java.awt.Color;
 import java.awt.Point;
-
-/**
- *
- * @author ch.bonnet
- */
 public class Cercle {
     private int x;
     private int y;

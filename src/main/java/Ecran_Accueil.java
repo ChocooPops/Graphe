@@ -45,7 +45,7 @@ public class Ecran_Accueil extends JFrame {
         JMenu onglet1 = new JMenu("Edit"); 
         JMenu onglet2 = new JMenu("Choix de l'écran"); 
         item1 = new JMenuItem[4]; 
-        item2 = new JMenuItem[5]; 
+        item2 = new JMenuItem[6]; 
         item1[0]= new JMenuItem("Fermer"); 
         item1[1]= new JMenuItem("Actualiser"); 
         item1[2]= new JMenuItem("Ajouter la liste des successeurs"); 
@@ -55,6 +55,7 @@ public class Ecran_Accueil extends JFrame {
         item2[2] = new JMenuItem("Ecran_1");
         item2[3] = new JMenuItem("Ecran_2");
         item2[4] = new JMenuItem("Ecran_3");
+        item2[5] = new JMenuItem("Ecran_Bonus");
         for(int i=0; i<item1.length; i++){
             onglet1.add(item1[i]); 
         } 
@@ -257,7 +258,6 @@ public class Ecran_Accueil extends JFrame {
                 if(res == JFileChooser.APPROVE_OPTION){
                     File file = chose.getSelectedFile();
                     lien_fichier_succ = file.getAbsolutePath();
-                    System.out.println(lien_fichier_succ);
                     JLabel lien = new JLabel(lien_fichier_succ); 
                         lien.setFont(new Font("Arial", Font.BOLD, 20));
                         lien.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -324,6 +324,12 @@ public class Ecran_Accueil extends JFrame {
         item2[4].addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){ 
                 new Ecran_3().setVisible(true);
+                setVisible(false); 
+            }
+        }); 
+        item2[5].addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){ 
+                new Ecran_Bonus().setVisible(true);
                 setVisible(false); 
             }
         }); 

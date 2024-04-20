@@ -2,9 +2,11 @@
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 
 public class LCGraphe { 
@@ -143,7 +145,7 @@ public class LCGraphe {
         MaillonPrincipal sommet = ChercherSommetPrincipal(nom1); 
         return sommet.type; 
     }
-    public String getFiabilite(String nom1){
+    public String getNomArete(String nom1){
         MaillonPrincipal sommet1 = ChercherSommetPrincipal(nom1); 
         MaillonGrapheSec sommet2 = sommet1.voisin; 
         String s = ""; 
@@ -394,6 +396,23 @@ public class LCGraphe {
         }
         return s;
     }
+    public String Lister_Sommet_1_Distance1(String nom){ 
+        MaillonPrincipal sommet = null; 
+        sommet = ChercherSommetPrincipal(nom); 
+        String s = ""; 
+        if(sommet != null){
+            MaillonGrapheSec tmp2 = sommet.voisin;
+            while(tmp2 != null){
+                s = s + tmp2.dest +"_" + getType(tmp2.dest) + " - "; 
+                tmp2 = tmp2.suiv; 
+            }
+            s = s.replaceFirst(" - $", "");
+        }else{
+            s = "Ce sommet n'existe pas."; 
+        }
+        return s;
+    }
+    
     
         //F8_Pour une arête donnée, lister les sommets qu'elle relie; 
         //Methode 1 : seulement avec le nom; 
@@ -606,7 +625,8 @@ public class LCGraphe {
             if(liste1.contains(voisin1[i])){
                 liste1.remove(voisin1[i]); 
             } 
-        }    
+        }
+        
         liste1.remove(nom1); //Supprime le sommet analysé dans sa prorpe liste;
         for (String i : liste1){
             //Appelle la méthode ChercherType(ligne : 383; déja utiliser pour la méthode "Lister_Sommet_1_Distance_Type"; 
@@ -617,8 +637,10 @@ public class LCGraphe {
             }else{
                 nb1[2] = nb1[2]+1; 
             }  
-            s = s + i + "-"; 
+            s = s + i + " - "; 
         }
+        s = s.replaceAll(" - $", ""); 
+        s = "Les dispensaires à 2-distance de "+ nom1 + " sont : " + s; 
         s = s + '\n';
         s = s + "Le sommet " + nom1 + " possède " + nb1[0] + " Maternité, " + nb1[1] + " secteur de Nutrition, et "+ nb1[2] + " Bloc Opératoire à deux de distance."; 
         s = s + '\n'; 
@@ -634,6 +656,7 @@ public class LCGraphe {
                 liste2.remove(voisin2[i]);
             }
         }
+        String s2 = ""; 
         liste2.remove(nom2); //Supprime le sommet analysé dans sa prorpe liste;
         for(String i : liste2){
             if(ChercherType(i).equals("M")){
@@ -643,9 +666,11 @@ public class LCGraphe {
             }else{
                 nb2[2] = nb2[2]+1; 
             }  
-            s = s + i + "-"; 
+            s2 = s2 + i + " - "; 
         }
-        s = s + '\n'; 
+        s2 = s2.replaceAll(" - $", ""); 
+        s = s + "Les dispensaires à 2-distance de "+ nom2 + " sont : " + s2; 
+        s = s + '\n';
         s = s + "Le sommet " + nom2 + " possède " + nb2[0] + " Maternité, " + nb2[1] + " secteur de Nutrition, et "+ nb2[2] + " Bloc Opératoire à deux de distance."; 
         s = s + '\n'; 
             
@@ -679,68 +704,212 @@ public class LCGraphe {
         return s; 
     }
     
-  public List<String> dijkstra(String sommetDepart, String sommetArrivee) {
-    HashMap<String, Double> distances = new HashMap<>();
-    HashMap<String, String> predecesseurs = new HashMap<>();
-    PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
-
-    // Initialisation des distances à l'infini, sauf pour le sommet de départ
-    MaillonPrincipal courant = premier;
-    while (courant != null) {
-        if (courant.nom.equals(sommetDepart)) {
-            distances.put(courant.nom, 0.0);
-        } else {
-            distances.put(courant.nom, Double.POSITIVE_INFINITY);
-        }
-        predecesseurs.put(courant.nom, null);
-        queue.add(courant.nom);
-        courant = courant.suiv;
-    }
-
-    // Boucle principale de l'algorithme de Dijkstra
-    while (!queue.isEmpty()) {
-        String sommetCourant = queue.poll();
-        double distanceCourante = distances.get(sommetCourant);
-
-        if (sommetCourant.equals(sommetArrivee)) {
-            // Nous avons atteint le sommet d'arrivée, donc nous pouvons arrêter ici
-            break;
-        }
-
-        // Parcours des voisins du sommet courant
-        courant = trouverSommet(sommetCourant);
-        MaillonGrapheSec voisinCourant = courant.voisin;
-        while (voisinCourant != null) {
-            double distanceVoisin = distanceCourante * voisinCourant.fiabilite;
-            if (distanceVoisin < distances.get(voisinCourant.dest)) {
-                distances.put(voisinCourant.dest, distanceVoisin);
-                predecesseurs.put(voisinCourant.dest, sommetCourant);
+    //DIJISTRA; 
+        //CHEMIN LE PLUS COURT EN DISTANCE ENTRE DEUX SOMMETS; 
+    public String Chemin_LePlus_Court_Distance(String sommetDepart, String sommetArrivee) {
+        HashMap<String, Double> distances = new HashMap<>();
+        HashMap<String, String> predecesseurs = new HashMap<>();
+        PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+        String resultat = ""; 
+            //On commence par mettre toute les distance à l'infinie sauf celle du sommet de départ;  
+        MaillonPrincipal courant = premier;
+        while (courant != null) {
+            if (courant.nom.equals(sommetDepart)) {
+                distances.put(courant.nom, 0.0); //Sommet de départ; 
+            } else {
+                distances.put(courant.nom, Double.POSITIVE_INFINITY); //autre sommet; 
             }
-            voisinCourant = voisinCourant.suiv;
+            predecesseurs.put(courant.nom, null); //Ajout de tout les sommets avec leurs prédecesseurs null, 
+            queue.add(courant.nom); //Stock tout les sommets croissants par rapport à leur distance (le sommet de départ sera donc le premier; 
+            courant = courant.suiv;
         }
-    }
 
-    // Construction du chemin le plus court
-    List<String> cheminPlusCourt = new ArrayList<>();
-    String sommet = sommetArrivee;
-    while (sommet != null) {
-        cheminPlusCourt.add(0, sommet);
-        sommet = predecesseurs.get(sommet);
-    }
+        // Boucle principale de l'algorithme pour traiter tout les sommets; 
+        while (!queue.isEmpty()) {
+            String sommetCourant = queue.poll(); //Extrait et supprime le sommet en tete de la liste pour ne plus le visité; 
+            double distanceCourante = distances.get(sommetCourant);
 
-    return cheminPlusCourt;
-}
-private MaillonPrincipal trouverSommet(String nom) {
-    MaillonPrincipal courant = premier;
-    while (courant != null) {
-        if (courant.nom.equals(nom)) {
-            return courant;
+            if (sommetCourant.equals(sommetArrivee)) {
+                break; //Sort de la boucle le sommet d'arrivée est visité; 
+            }
+
+            //Parcour les sommets voisins du sommets courant; 
+            MaillonPrincipal sommet = ChercherSommetPrincipal(sommetCourant);
+            MaillonGrapheSec voisinCourant = sommet.voisin;
+            while (voisinCourant != null) {
+                double distanceVoisin = distanceCourante + voisinCourant.distance; //Ajoute la distance initiale à celle du sommet visité; 
+                if (distanceVoisin < distances.get(voisinCourant.dest)) {       //Si cette distance est inférieur; 
+                   distances.put(voisinCourant.dest, distanceVoisin);       //Ajoute la distance la plus basse et avec le nom du sommet pour etre comparé avec les suivants dans la boucle; 
+                    predecesseurs.put(voisinCourant.dest, sommetCourant);   //Ajoute le sommet avec la plus basse distance et son prédécesseurs pour avoir un suivit sur le chemin à emprunté; 
+                    // Mise à jour de la priorité du voisin dans la PriorityQueue
+                    queue.remove(voisinCourant.dest); //Supprime le Voisin Courant et sa distance; 
+                    queue.add(voisinCourant.dest);    //Ajoute le Voisin Courant et sa nouvelle distance pour mettre à jour la priorité, ce sommet sera donc le suivant à etre traité; 
+                }
+                voisinCourant = voisinCourant.suiv;     //Passage au sommet voisin suivante; 
+            }
         }
-        courant = courant.suiv;
+        //Chemin le plus fiable dans une liste à partir de la liset prédécesseurs; 
+        List<String> chemin = new ArrayList<>();
+        String sommet = sommetArrivee;
+        while (sommet != null) {
+            chemin.add(0, sommet);
+            sommet = predecesseurs.get(sommet);
+        }
+        //Chemin le plus fiable dans un String à partir de la liset chemin; 
+        for(int i=0; i<chemin.size(); i++){
+            if(i == chemin.size()-1){
+                resultat = resultat.concat(chemin.get(i));
+            }else{
+                resultat = resultat.concat(chemin.get(i).concat(" --> "));
+            }
+        }
+        return resultat;
     }
-    return null;
+    
+        //CHEMIN LE PLUS COURT EN DUREE ENTRE DEUX SOMMETS; 
+    public String Chemin_LePlus_Court_Duree(String sommetDepart, String sommetArrivee) {
+        HashMap<String, Double> duree = new HashMap<>();
+        HashMap<String, String> predecesseurs = new HashMap<>();
+        PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingDouble(duree::get));
+        String resultat = ""; 
+            //On commence par mettre toute les distance à l'infinie sauf celle du sommet de départ;  
+        MaillonPrincipal courant = premier;
+        while (courant != null) {
+            if (courant.nom.equals(sommetDepart)) {
+                duree.put(courant.nom, 0.0);
+            } else {
+                duree.put(courant.nom, Double.POSITIVE_INFINITY);
+            }
+            predecesseurs.put(courant.nom, null);
+            queue.add(courant.nom);
+            courant = courant.suiv;
+        }
+
+        while (!queue.isEmpty()) {
+            String sommetCourant = queue.poll();
+            double dureeCourante = duree.get(sommetCourant);
+
+            if (sommetCourant.equals(sommetArrivee)) {
+                break;
+            }
+
+            MaillonPrincipal sommet = ChercherSommetPrincipal(sommetCourant);
+            MaillonGrapheSec voisinCourant = sommet.voisin;
+            while (voisinCourant != null) {
+                double distanceVoisin = dureeCourante + voisinCourant.duree;
+                if (distanceVoisin < duree.get(voisinCourant.dest)) {
+                    duree.put(voisinCourant.dest, distanceVoisin);
+                    predecesseurs.put(voisinCourant.dest, sommetCourant);
+                    queue.remove(voisinCourant.dest);   //Mise à jour de la file d'attente; 
+                    queue.add(voisinCourant.dest);
+                }
+                voisinCourant = voisinCourant.suiv;
+            }
+        }
+        List<String> chemin = new ArrayList<>();
+        String sommet = sommetArrivee;
+        while (sommet != null) {
+            chemin.add(0, sommet);
+            sommet = predecesseurs.get(sommet);
+        }
+        //Chemin le plus fiable dans un String à partir de la liset chemin;
+        for(int i=0; i<chemin.size(); i++){
+            if(i == chemin.size()-1){
+                resultat = resultat.concat(chemin.get(i));
+            }else{
+                resultat = resultat.concat(chemin.get(i).concat(" --> "));
+            }
+        }
+        return resultat;
+    }
+        //CHEMIN LE PLUS FIABLE EN DUREE ENTRE DEUX SOMMETS; 
+    public String Chemin_LePlus_Fiable(String sommetDepart, String sommetArrivee) {
+        HashMap<String, Double> fiable = new HashMap<>();
+        HashMap<String, String> predecesseurs = new HashMap<>();
+        PriorityQueue<String> queue = new PriorityQueue<>(Comparator.comparingDouble(fiable::get).reversed());
+        String resultat = ""; 
+        //On commence par mettre toute les fiabilité à 0 sauf celle du sommet de départ où elle sera à 100%;  
+        MaillonPrincipal courant = premier;
+        while (courant != null) {
+            if (courant.nom.equals(sommetDepart)) {
+                fiable.put(courant.nom, 10.0);
+            } else {
+                fiable.put(courant.nom, 0.0);
+            }
+            predecesseurs.put(courant.nom, null);
+            queue.add(courant.nom);
+            courant = courant.suiv;
+        }
+
+        while (!queue.isEmpty()) {
+            String sommetCourant = queue.poll();
+            double fiableCourante = fiable.get(sommetCourant);
+
+            if (sommetCourant.equals(sommetArrivee)) {
+                break;
+            }
+
+            MaillonPrincipal sommet = ChercherSommetPrincipal(sommetCourant);
+            MaillonGrapheSec voisinCourant = sommet.voisin;
+            while (voisinCourant != null) {
+                double fiableVoisin = fiableCourante * voisinCourant.fiabilite/10;
+                if (fiableVoisin > fiable.get(voisinCourant.dest)) {
+                    fiable.put(voisinCourant.dest, fiableVoisin);
+                    predecesseurs.put(voisinCourant.dest, sommetCourant);
+                    queue.remove(voisinCourant.dest);
+                    queue.add(voisinCourant.dest);
+                }
+                voisinCourant = voisinCourant.suiv;
+            }
+        }
+        List<String> chemin = new ArrayList<>();
+        String sommet = sommetArrivee;
+        while (sommet != null) {
+            chemin.add(0, sommet);
+            sommet = predecesseurs.get(sommet);
+        }
+        //Chemin le plus fiable dans un String à partir de la liset chemin;
+        for(int i=0; i<chemin.size(); i++){
+            if(i == chemin.size()-1){
+                resultat = resultat.concat(chemin.get(i));
+            }else{
+                resultat = resultat.concat(chemin.get(i).concat(" --> "));
+            }
+        }
+        return resultat;
+    }
+    
+        //CHEMIN LE PLUS FIABLE EN DUREE ENTRE DEUX SOMMETS; 
+    public String Complexite(String sommetDepart, String sommetArrivee) {
+        int V = 0; //Nombre de Sommet; 
+        int E = 0; //Nombre d'Arete; 
+        MaillonPrincipal sommet = this.premier; 
+        while (sommet != null){
+            MaillonGrapheSec voisin = sommet.voisin; 
+            while(voisin != null){
+                E ++; 
+                voisin = voisin.suiv; 
+            }
+            V++; 
+            sommet = sommet.suiv; 
+        }
+        E = E/2; 
+        int complexite = E + V; 
+        return "Complexité : O((" + complexite + ") log " + V + ")"; 
+    }
 }
-    
-    
-    
-}
+
+/*
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+==========================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+*/
